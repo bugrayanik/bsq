@@ -62,30 +62,65 @@
 //     }
 // }
 
-// Function to check if a square of size n starting from coordinates (x, y) is empty
-int is_empty(char **map, int x, int y, int n, char obs) 
+// // Function to check if a square of size n starting from coordinates (x, y) is empty
+// int is_empty(char **map, int x, int y, int n, char obs) 
+// {
+//     int i = y;
+//     while (i < y + n) 
+//     {
+//         //printf("girdi 1\n");
+//         int j = x;
+//         while (j < x + n) 
+//         {
+//             printf("map[%d][%d] = %c\n", i,j,map[i][j]);
+//             if (map[i][j] == obs)
+//             {
+//                 return 0; // Not empty if an obstacle is found
+//             }
+//             j++;
+//         }
+//         i++;
+//     }
+//     return 1; // Square is empty
+// }
+
+// // Function to paint a square of size n starting from coordinates (x, y) with a given character
+// void paint_square(char **map, int x, int y, int n, char full) 
+// {
+//     int i = y;
+//     while (i < y + n) 
+//     {
+//         int j = x;
+//         while (j < x + n) 
+//         {
+//             map[i][j] = full;
+//             j++;
+//         }
+//         i++;
+//     }
+// }
+
+int is_empty(char **map, int y, int x, int n, char obs) 
 {
     int i = y;
     while (i < y + n) 
     {
-        //printf("girdi 1\n");
         int j = x;
         while (j < x + n) 
         {
-            //printf("girdi 2\n");
-            if (map[i][j] == obs) 
+            //printf("map[%d][%d] = %c\n", i, j, map[i][j]);
+            if (map[i][j] == obs)
             {
                 return 0; // Not empty if an obstacle is found
             }
-            j++;
+            j++; // Move to the next column
         }
-        i++;
+        i++; // Move to the next row
     }
     return 1; // Square is empty
 }
 
-// Function to paint a square of size n starting from coordinates (x, y) with a given character
-void paint_square(char **map, int x, int y, int n, char full) 
+void paint_square(char **map, int y, int x, int n, char full) 
 {
     int i = y;
     while (i < y + n) 
@@ -94,11 +129,13 @@ void paint_square(char **map, int x, int y, int n, char full)
         while (j < x + n) 
         {
             map[i][j] = full;
-            j++;
+            j++; // Move to the next column
         }
-        i++;
+        i++; // Move to the next row
     }
 }
+
+
 
 void print_map(char **map, int rows, int cols) 
 {
@@ -111,10 +148,10 @@ void print_map(char **map, int rows, int cols)
             write(1, &map[i][j], 1);
             j++;
         }
-        char newline = '\n';
-        write(1, &newline, 1);
+        write(1, "\n", 1);
         i++;
     }
+    write(1, "\n", 1);
 }
 
 // Main function to solve the problem
@@ -147,8 +184,8 @@ int solve(char **map, int n, int min_n, char obs, char full, int rows, int cols)
         int x = 0;
         while (x <= rows - n && !found) {
             int y = 0;
-            while (y <= cols - n && !found) {
-                printf("(%d,%d) -->%d\n", x, y, n);
+            while (y <= cols - n -1&& !found) {
+                //printf("(%d,%d) -->%d\n", x, y, n);
                 if (is_empty(map, x, y, n, obs)) {
                     paint_square(map, x, y, n, full);
                     found = 1;
@@ -164,22 +201,24 @@ int solve(char **map, int n, int min_n, char obs, char full, int rows, int cols)
 }
 
 
-void fill_map(char ***map, int rows, int cols, char buf[MAX_BUFFER_SIZE]) {
-    int k = 0;
+void fill_map(char ***map, int rows, int cols, char buf[MAX_BUFFER_SIZE], int k) {
+
     int i = 0;
     while (i < rows) {
         int j = 0;
-        while (j < cols) {
-            if (buf[k] != '\n') {
-                (*map)[i][j] = buf[k++];
-            } else {
-                k++;
+        while (j < cols) 
+        {
+            if (buf[k] != '\n')
+            {
+                (*map)[i][j] = buf[k];
             }
+            k++;
             j++;
         }
         i++;
     }
 }
+
 
 void create_map(char ***map, int rows, int cols) {
     *map = (char **)malloc(rows * sizeof(char *));
@@ -188,7 +227,7 @@ void create_map(char ***map, int rows, int cols) {
         exit(1);
     }
 
-    int i = 0;
+    int i = 0, j;
     while (i < rows) 
     {
         (*map)[i] = (char *)malloc(cols * sizeof(char));
@@ -197,9 +236,16 @@ void create_map(char ***map, int rows, int cols) {
             ft_err_log("Memory allocation failed for columns.\n");
             exit(1);
         }
+
+        // Initialize each element in the row to zero
+        for (j = 0; j < cols; j++) 
+        {
+            (*map)[i][j] = 0;
+        }
         i++;
     }
 }
+
 
 int init_map(char ***map, char *file_name, char *full_chr, char *obs_chr, int *rows, int *cols) //initialize the map, get ready
 {
@@ -227,20 +273,19 @@ int init_map(char ***map, char *file_name, char *full_chr, char *obs_chr, int *r
         }
         i++;
     }
-    (*cols)--;
-    (*rows)--;
+
     n = ft_atoi(buffer); //n -> bulunabilecek en buyuk karenin kenari
     *full_chr = buffer[k-1];
     *obs_chr = buffer[k-2];
-    printf("rows =%d, cols =%d, obs =%c, full =%c\n\n\n", *rows, *cols, *obs_chr, *full_chr);
+    printf("rows =%d, cols =%d, obs =%c, full =%c\n", *rows, *cols, *obs_chr, *full_chr);
     create_map(map, *rows, *cols);
-    fill_map(map, *rows, *cols, &buffer[k]);
+    fill_map(map, *rows, *cols, buffer, k);
     return n;
 }
 
 int main(int arc, char **arv)
 {
-    char **map; //mapin ta kendisi 2 boyutlu matrix DUZLEM
+    char **map = NULL; //mapin ta kendisi 2 boyutlu matrix DUZLEM
     int ret = 0; //return value
     int rows = 0, cols = 0; //mapin eni ve boyu
     char obs_chr,full_chr; //obstacle ve full(paint) karakterleri
