@@ -102,13 +102,13 @@ void print_map(char **map, int rows, int cols) {
 }
 
 // Main function to solve the problem
-int solve(char **map, int n, int min_n, char obs, char full, int max_index) {
+int solve(char **map, int n, int min_n, char obs, char full, int rows, int cols) {
     int found = 0;
     while (n >= min_n && !found) {
         int y = 0;
-        while (y <= max_index - n && !found) {
+        while (y <= cols - n && !found) {  //max index ==> bu mape cizebilecegim en buyuk karenin sideinin uzunlugu
             int x = 0;
-            while (x <= max_index - n && !found) {
+            while (x <= rows - n && !found) { //(0,0), (0,1), (0,2) --> hangi celklden deneyecegini dolasmak icin
                 if (is_empty(map, x, y, n, obs)) {
                     paint_square(map, x, y, n, full);
                     found = 1;
@@ -118,7 +118,8 @@ int solve(char **map, int n, int min_n, char obs, char full, int max_index) {
             }
             y++;
         }
-        n--;
+        n--; // n denenen karenin side boyutu (kenar uzunlugu), giderek daha kucuk kenarli kare deniyoruz.
+            // ilk en buyuk kenarli kareyi cizmeye calisacagiz, n = maximum squares side len
     }
     return 0;
 }
@@ -163,7 +164,7 @@ int init_map(char ***map, char *file_name, char *full_chr, char *obs_chr, int *r
     fd = open(file_name,0); //open the .txt file, 0 flag means read only
     ret = read(fd, buffer, MAX_BUFFER_SIZE); //read the file  referred to by the fd and store them up to MAX_BUFFER_SIZE inside the buffer
     while (buffer[i] != '\0')
-    {9iii
+    {
         write(1,&buffer[i],1);
         i++;
     }write(1,"\n",1);
@@ -204,7 +205,7 @@ int main(int arc, char **arv)
     int rows = 0, cols = 0; //mapin eni ve boyu
     char obs_chr,full_chr; //obstacle ve full(paint) karakterleri
     ret = init_map(&map, "map.txt", &obs_chr, &full_chr, &rows, &cols); //addressleriyle gonderiyoruz, mutator function
-    ret = solve(map, ret, 0, obs_chr, full_chr, ret);
+    ret = solve(map, ret, 0, obs_chr, full_chr, rows, cols);
     if(ret)
     {
         print_map(map, rows, cols);
