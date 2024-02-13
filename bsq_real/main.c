@@ -63,12 +63,18 @@
 // }
 
 // Function to check if a square of size n starting from coordinates (x, y) is empty
-int is_empty(char **map, int x, int y, int n, char obs) {
+int is_empty(char **map, int x, int y, int n, char obs) 
+{
     int i = y;
-    while (i < y + n) {
+    while (i < y + n) 
+    {
+        //printf("girdi 1\n");
         int j = x;
-        while (j < x + n) {
-            if (map[i][j] == obs) {
+        while (j < x + n) 
+        {
+            //printf("girdi 2\n");
+            if (map[i][j] == obs) 
+            {
                 return 0; // Not empty if an obstacle is found
             }
             j++;
@@ -79,11 +85,14 @@ int is_empty(char **map, int x, int y, int n, char obs) {
 }
 
 // Function to paint a square of size n starting from coordinates (x, y) with a given character
-void paint_square(char **map, int x, int y, int n, char full) {
+void paint_square(char **map, int x, int y, int n, char full) 
+{
     int i = y;
-    while (i < y + n) {
+    while (i < y + n) 
+    {
         int j = x;
-        while (j < x + n) {
+        while (j < x + n) 
+        {
             map[i][j] = full;
             j++;
         }
@@ -91,49 +100,84 @@ void paint_square(char **map, int x, int y, int n, char full) {
     }
 }
 
-void print_map(char **map, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
+void print_map(char **map, int rows, int cols) 
+{
+    int i = 0;
+    while (i < rows) 
+    {
+        int j = 0;
+        while (j < cols) 
+        {
             write(1, &map[i][j], 1);
+            j++;
         }
         char newline = '\n';
         write(1, &newline, 1);
+        i++;
     }
 }
 
 // Main function to solve the problem
+// int solve(char **map, int n, int min_n, char obs, char full, int rows, int cols) {
+//     int found = 0;
+//     while (n >= min_n && !found) {
+//         int y = 0;
+//         while (y <= cols - n && !found) {  //max index ==> bu mape cizebilecegim en buyuk karenin sideinin uzunlugu
+//             int x = 0;
+//             while (x <= rows - n && !found) { //(0,0), (0,1), (0,2) --> hangi cellden deneyecegini dolasmak icin
+//                 printf("(%d,%d) -->%d\n", x,y,n);
+//                 if (is_empty(map, x, y, n, obs)) {
+//                     paint_square(map, x, y, n, full);
+//                     found = 1;
+//                     return found;
+//                 }
+//                 x++;
+//             }
+//             y++;
+//         }
+//         n--; // n denenen karenin side boyutu (kenar uzunlugu), giderek daha kucuk kenarli kare deniyoruz.
+//             // ilk en buyuk kenarli kareyi cizmeye calisacagiz, n = maximum squares side len
+//     }
+//     return 0;
+// }
+
 int solve(char **map, int n, int min_n, char obs, char full, int rows, int cols) {
     int found = 0;
     while (n >= min_n && !found) {
-        int y = 0;
-        while (y <= cols - n && !found) {  //max index ==> bu mape cizebilecegim en buyuk karenin sideinin uzunlugu
-            int x = 0;
-            while (x <= rows - n && !found) { //(0,0), (0,1), (0,2) --> hangi celklden deneyecegini dolasmak icin
+        int x = 0;
+        while (x <= rows - n && !found) {
+            int y = 0;
+            while (y <= cols - n && !found) {
+                printf("(%d,%d) -->%d\n", x, y, n);
                 if (is_empty(map, x, y, n, obs)) {
                     paint_square(map, x, y, n, full);
                     found = 1;
                     return found;
                 }
-                x++;
+                y++;
             }
-            y++;
+            x++;
         }
-        n--; // n denenen karenin side boyutu (kenar uzunlugu), giderek daha kucuk kenarli kare deniyoruz.
-            // ilk en buyuk kenarli kareyi cizmeye calisacagiz, n = maximum squares side len
+        n--;
     }
     return 0;
 }
 
+
 void fill_map(char ***map, int rows, int cols, char buf[MAX_BUFFER_SIZE]) {
     int k = 0;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
+    int i = 0;
+    while (i < rows) {
+        int j = 0;
+        while (j < cols) {
             if (buf[k] != '\n') {
                 (*map)[i][j] = buf[k++];
             } else {
                 k++;
             }
+            j++;
         }
+        i++;
     }
 }
 
@@ -144,12 +188,16 @@ void create_map(char ***map, int rows, int cols) {
         exit(1);
     }
 
-    for (int i = 0; i < rows; i++) {
+    int i = 0;
+    while (i < rows) 
+    {
         (*map)[i] = (char *)malloc(cols * sizeof(char));
-        if ((*map)[i] == NULL) {
+        if ((*map)[i] == NULL) 
+        {
             ft_err_log("Memory allocation failed for columns.\n");
             exit(1);
         }
+        i++;
     }
 }
 
@@ -158,53 +206,46 @@ int init_map(char ***map, char *file_name, char *full_chr, char *obs_chr, int *r
     int fd; //file descriptor for map.txt
     int ret;
     int n;
-    int i = 0;
+    int i , k= 0;
     int first_newline_encountered = 0;
     char buffer[MAX_BUFFER_SIZE] = {0};
-    fd = open(file_name,0); //open the .txt file, 0 flag means read only
-    ret = read(fd, buffer, MAX_BUFFER_SIZE); //read the file  referred to by the fd and store them up to MAX_BUFFER_SIZE inside the buffer
-    while (buffer[i] != '\0')
-    {
-        write(1,&buffer[i],1);
-        i++;
-    }write(1,"\n",1);
-    
+    fd = open(file_name, O_RDONLY); //open the .txt file, 0 flag means read only
+    ret = read(fd, buffer, 1024); //read the file  referred to by the fd and store them up to MAX_BUFFER_SIZE inside the buffer
+
     // Find the dimensions in the buffer
-    i=0;
-    while (buffer[i] != '\0') {
-        if (buffer[i] == '\n') {
-            if (!first_newline_encountered) {
-                first_newline_encountered = 1;
-            }
+    while (buffer[k] != '\n') 
+        k++; // ilk satirda kac karakter var.
+    while (buffer[i+k] != '\0') 
+    {
+        if (buffer[i+k] == '\n') 
+        {
             (*rows)++; // Increment the row count for each newline , y, uzunluk?
-            if (*cols == 0) {
+            if (*cols == 0) //if cols was empty
+            { 
                 (*cols) = i; // Record the column count for the first row, x, karakter sayin, sayfanin enine boyutu
             }
         }
         i++;
     }
-
-    n = ft_atoi(buffer); //n -> bulunabilecek en buyuk karenin kenari = iki kenardan kisa olani
-    printf("burada n=%d",n);
-    ret -= (*rows)*(*cols)+1;
-    printf("burada rows=%d, cols=%d",*rows, *cols);
-    
-    *full_chr = buffer[ret-2];
-    *obs_chr = buffer[ret-1];
-    printf("burada full=%c, obs=%c",*full_chr, *obs_chr);
-
+    (*cols)--;
+    (*rows)--;
+    n = ft_atoi(buffer); //n -> bulunabilecek en buyuk karenin kenari
+    *full_chr = buffer[k-1];
+    *obs_chr = buffer[k-2];
+    printf("rows =%d, cols =%d, obs =%c, full =%c\n\n\n", *rows, *cols, *obs_chr, *full_chr);
     create_map(map, *rows, *cols);
-    fill_map(map, *rows, *cols, &buffer[ret]);
+    fill_map(map, *rows, *cols, &buffer[k]);
     return n;
 }
 
 int main(int arc, char **arv)
 {
-    char **map; //mapin ta kendisi 2 boyutlu matrix
+    char **map; //mapin ta kendisi 2 boyutlu matrix DUZLEM
     int ret = 0; //return value
     int rows = 0, cols = 0; //mapin eni ve boyu
     char obs_chr,full_chr; //obstacle ve full(paint) karakterleri
-    ret = init_map(&map, "map.txt", &obs_chr, &full_chr, &rows, &cols); //addressleriyle gonderiyoruz, mutator function
+    ret = init_map(&map, "map.txt", &full_chr, &obs_chr, &rows, &cols); //addressleriyle gonderiyoruz, mutator function
+    print_map(map, rows, cols);
     ret = solve(map, ret, 0, obs_chr, full_chr, rows, cols);
     if(ret)
     {
